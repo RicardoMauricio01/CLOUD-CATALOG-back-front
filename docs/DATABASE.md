@@ -7,7 +7,7 @@
 | Motor | PostgreSQL 18 |
 | Nombre | `cloud_catalog` |
 | Usuario | `postgres` |
-| Contrasena | `123` |
+| Password | `123` |
 | Puerto | 5432 |
 
 ## ENUM: `rol_usuario`
@@ -16,14 +16,12 @@
 CREATE TYPE rol_usuario AS ENUM ('cliente', 'empleado', 'admin');
 ```
 
----
-
 ## Tablas
 
 ### `usuarios`
 
 | Columna | Tipo | Constraints |
-|---------|------|------------|
+|---------|------|-------------|
 | `id` | SERIAL | PRIMARY KEY |
 | `nombre` | VARCHAR(100) | NOT NULL |
 | `usuario` | VARCHAR(50) | UNIQUE, NOT NULL |
@@ -35,31 +33,23 @@ CREATE TYPE rol_usuario AS ENUM ('cliente', 'empleado', 'admin');
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
 | `updated_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
 
-**Indices:**
-- `idx_usuarios_email` sobre `(email)`
-- `idx_usuarios_usuario` sobre `(usuario)`
-- `idx_usuarios_rol` sobre `(rol)`
-
----
+Indices: `idx_usuarios_email` (email), `idx_usuarios_usuario` (usuario), `idx_usuarios_rol` (rol)
 
 ### `categorias`
 
 | Columna | Tipo | Constraints |
-|---------|------|------------|
+|---------|------|-------------|
 | `id` | SERIAL | PRIMARY KEY |
 | `nombre` | VARCHAR(100) | UNIQUE, NOT NULL |
 | `descripcion` | TEXT | nullable |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
 
-**Indices:**
-- `idx_categorias_nombre` sobre `(nombre)`
-
----
+Indice: `idx_categorias_nombre` (nombre)
 
 ### `productos`
 
 | Columna | Tipo | Constraints |
-|---------|------|------------|
+|---------|------|-------------|
 | `id` | SERIAL | PRIMARY KEY |
 | `nombre` | VARCHAR(150) | NOT NULL |
 | `descripcion` | TEXT | nullable |
@@ -70,72 +60,46 @@ CREATE TYPE rol_usuario AS ENUM ('cliente', 'empleado', 'admin');
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
 | `updated_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
 
-**Indices:**
-- `idx_productos_categoria` sobre `(categoria_id)`
-- `idx_productos_precio` sobre `(precio)`
+Indices: `idx_productos_categoria` (categoria_id), `idx_productos_precio` (precio)
 
----
-
-## Diagrama de Relaciones
+## Relaciones
 
 ```
-usuarios                  categorias
-    |                          |
-    |                          |
-    |    productos             |
-    |   +-----------+          |
-    +-->|categoria_id|-------->+
-        +-----------+
-        |    id     |
-        |  nombre   |
-        |  precio   |
-        |  stock    |
-        | imagen_url|
-        +-----------+
+categorias (1) ---< (N) productos
 ```
 
-- `productos.categoria_id` -> `categorias.id` (ON DELETE SET NULL)
+`productos.categoria_id` → `categorias.id` con `ON DELETE SET NULL` (si se borra una categoria, los productos quedan sin categoria).
 
----
-
-## Scripts SQL
-
-### Scripts de inicializacion (en orden)
+## Scripts SQL (ejecutar en orden)
 
 | Script | Descripcion |
 |--------|-------------|
-| `01_init_roles_usuarios.sql` | Crea ENUM `rol_usuario`, tabla `usuarios` con indices |
+| `01_init_roles_usuarios.sql` | Crea ENUM `rol_usuario` y tabla `usuarios` con indices |
 | `02_init_categorias_prod.sql` | Crea tablas `categorias` y `productos` con indices |
-| `03_seed_tienda.sql` | Elimina datos existentes, inserta 4 categorias de supermercado |
-| `04_seed_productos.sql` | Inserta 11 productos de supermercado con URLs de imagenes |
-| `05_seed_admin.sql` | Inserta usuario administrador (admin/123456) |
+| `03_seed_tienda.sql` | Inserta 4 categorias de supermercado |
+| `04_seed_productos.sql` | Inserta 11 productos con URLs de imagenes |
+| `05_seed_admin.sql` | Inserta usuario admin con hash bcrypt de `123456` |
 
-### Ejecucion de scripts
+### Reset rapido via backend
 
-```powershell
-$env:PGPASSWORD = "123"
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -c "CREATE DATABASE cloud_catalog;"
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d cloud_catalog -f database/scripts/01_init_roles_usuarios.sql
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d cloud_catalog -f database/scripts/02_init_categorias_prod.sql
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d cloud_catalog -f database/scripts/03_seed_tienda.sql
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d cloud_catalog -f database/scripts/04_seed_productos.sql
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d cloud_catalog -f database/scripts/05_seed_admin.sql
+```bash
+cd backend
+pnpm run db:reset
+# Ejecuta node db-reset.js que suelta tablas y corre los 5 scripts
 ```
 
----
+## Datos semilla
 
-## Datos Semilla
-
-### Categorias (supermercado)
+### Categorias
 
 | ID | Nombre |
 |----|--------|
-| 5 | Despensa |
-| 6 | Lacteos y Huevos |
-| 7 | Limpieza |
-| 8 | Panaderia |
+| 1 | Despensa |
+| 2 | Lacteos y Huevos |
+| 3 | Limpieza |
+| 4 | Panaderia |
 
-### Productos (11 items)
+### Productos (11)
 
 | ID | Nombre | Precio | Categoria |
 |----|--------|--------|-----------|
@@ -151,29 +115,19 @@ $env:PGPASSWORD = "123"
 | 10 | Lavaloza Concentrado | $1.590 | Limpieza |
 | 11 | Pan de Molde Blanco | $1.490 | Panaderia |
 
-### Usuario Admin
+### Usuarios
 
-| Campo | Valor |
-|-------|-------|
-| nombre | Administrador |
-| usuario | admin |
-| email | admin@tienda.cl |
-| password | 123456 (hash bcrypt) |
-| rol | admin |
+| Usuario | Password | Rol | Email |
+|---------|----------|-----|-------|
+| `admin` | `123456` | admin | admin@tienda.cl |
+| `test` | `123456` | cliente | test@gmail.com |
 
----
+## Formato de precios
 
-## Formato de Precios
+Almacenados como `DECIMAL(10,2)` en DB. El frontend los muestra en pesos chilenos sin decimales:
 
-Los precios se almacenan como `DECIMAL(10,2)` en la base de datos pero se muestran en formato de pesos chilenos sin decimales:
-
-```javascript
-const formatPrice = (price) => {
-    return '$ ' + new Intl.NumberFormat('es-CL', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(price);
-};
+```js
+new Intl.NumberFormat('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(precio)
 ```
 
 Ejemplo: `$ 1.290`, `$ 3.990`, `$ 690`
