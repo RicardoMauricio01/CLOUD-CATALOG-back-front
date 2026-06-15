@@ -14,7 +14,7 @@ const dotenv = require('dotenv');
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Verificar variables de entorno obligatorias
-const requiredEnvVars = ['PORT', 'DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_NAME'];
+const requiredEnvVars = ['PORT', 'DB_USER', 'DB_HOST', 'DB_NAME'];
 for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {
         console.error(`Error: Variable de entorno ${envVar} no definida`);
@@ -28,7 +28,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // Puerto del servidor
-const PORT = process.env.PORT || 5500;
+const PORT = process.env.PORT || 3100;
 
 // ============ MIDDLEWARES GLOBALES ============
 app.use(cors());
