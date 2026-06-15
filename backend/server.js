@@ -48,9 +48,9 @@ io.on('connection', (socket) => {
 
 // ============ RUTAS API ============
 // Importar rutas
-const authRoutes = require('./src/routes/auth.routes');
-const userRoutes = require('./src/routes/user.routes');
-const productRoutes = require('./src/routes/product.routes');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 // Montar rutas con prefijos
 app.use('/api/auth', authRoutes);
@@ -67,7 +67,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // ============ ARCHIVOS ESTÁTICOS (FRONTEND) ============
-// Servir el build de React desde frontend/dist
+// Servir el build de Vue desde frontend/dist
 const frontendPath = path.join(__dirname, '..', 'frontend', 'dist');
 app.use(express.static(frontendPath));
 

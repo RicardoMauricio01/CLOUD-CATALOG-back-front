@@ -1,76 +1,71 @@
-# Cloud Catalog - Documentacion del Proyecto
+# Cloud Catalog
 
-## Descripcion General
+Aplicacion web full-stack para gestionar un catalogo de productos de una tienda de abarrotes con autenticacion por roles y actualizaciones en tiempo real.
 
-**Cloud Catalog** es una aplicacion web full-stack para gestionar un catalogo de productos de una tienda de abarrotes (supermercado). Permite a los usuarios ver productos, y a administradores/empleados gestionar el catalogo en tiempo real.
-
-## Stack Tecnologico
+## Stack
 
 | Capa | Tecnologia |
 |------|-----------|
-| Frontend | React 19, Vite, React Router, Axios, Socket.io-client |
-| Backend | Express 5, Node.js, Socket.io, JWT, bcrypt |
-| Base de datos | PostgreSQL (pg) |
-| Gestor de paquetes | pnpm |
-| Autenticacion | JWT (JSON Web Tokens) |
-| Tiempo real | Socket.io |
+| Frontend | Vue 3, Vite 6, Pinia, Vue Router 4, Axios, Socket.io-client |
+| Backend | Express 5, Node.js, Socket.io 4, JWT, bcrypt |
+| Base de datos | PostgreSQL 18 (pg) |
+| Tiempo real | Socket.io (WebSocket) |
+| Paquetes | pnpm (monorepo sin raiz) |
 
-## Arquitectura
+## Estructura del proyecto
 
 ```
 cloudcatalog/
 ├── backend/                  # API REST + WebSocket
-│   ├── server.js            # Entry point Express 5
+│   ├── server.js            # Entry point (Express 5)
 │   ├── .env                 # Variables de entorno
+│   ├── config/db.js         # Pool PostgreSQL
+│   ├── routes/              # authRoutes, userRoutes, productRoutes
+│   ├── controllers/         # HTTP handlers + validacion
+│   ├── services/            # Logica de negocio (bcrypt, JWT)
+│   ├── dao/                 # Queries SQL (Data Access Objects)
+│   ├── dtos/                # Transformacion de datos (publicUser, productResponse)
+│   └── middlewares/         # JWT + RBAC
+├── frontend/                # SPA Vue 3
+│   ├── vite.config.js       # Proxy /api -> :5000
 │   └── src/
-│       ├── config/          # Conexion DB
-│       ├── middlewares/     # JWT + RBAC
-│       ├── models/          # Queries SQL puras
-│       ├── services/        # Logica de negocio
-│       ├── controllers/     # HTTP handlers + Socket.io
-│       └── routes/          # Definicion de endpoints
-├── frontend/                # SPA React
-│   ├── vite.config.js       # Config Vite + proxy
-│   └── src/
-│       ├── App.jsx          # Componente raiz
-│       ├── index.css        # Estilos globales (#90ee90)
-│       ├── routes/          # React Router
-│       ├── services/        # API calls (Axios)
-│       └── pages/           # 4 paginas principales
-├── database/
-│   └── scripts/             # SQL: ENUM, tablas, seeds
-└── docs/                    # Esta documentacion
+│       ├── main.js          # Entry point (createApp + Pinia + Router)
+│       ├── App.vue          # Componente raiz (NavBar + router-view)
+│       ├── assets/styles.css # Estilos globales
+│       ├── router/          # Vue Router con guards por rol
+│       ├── services/        # http.js (axios) + authService, userService, productService
+│       ├── state/           # Pinia store (appState.js)
+│       └── presentation/    # Vistas agrupadas por feature
+├── database/scripts/        # SQL: 01..05 (init + seed)
+└── docs/                    # Documentacion
 ```
 
 ## Puertos
 
 | Servicio | Puerto |
 |----------|--------|
-| Backend (produccion) | 5000 |
-| Frontend (Vite dev) | 3000 |
+| Backend | 5000 |
+| Frontend (dev) | 3000 |
 | PostgreSQL | 5432 |
 
-## Permisos por Rol
+## Roles y permisos
 
-| Rol | Ver Catalogo | CRUD Productos | Gestionar Usuarios |
+| Rol | Ver catalogo | CRUD productos | Gestionar usuarios |
 |-----|:------------:|:--------------:|:------------------:|
 | `cliente` | Si | No | No |
 | `empleado` | Si | Si | No |
 | `admin` | Si | Si | Si |
 
-## Credenciales de Admin
+## Credenciales por defecto
 
-| Campo | Valor |
-|-------|-------|
-| Usuario | `admin` |
-| Contrasena | `123456` |
-| Rol | `admin` |
+| Usuario | Password | Rol |
+|---------|----------|-----|
+| `admin` | `123456` | admin |
+| `test` | `123456` | cliente |
 
-## Documentacion
+## Docs
 
-- [API Endpoints](API.md) - Todos los endpoints REST
-- [Base de Datos](DATABASE.md) - Schema, tablas y seeds
-- [Backend](BACKEND.md) - Arquitectura del servidor
-- [Frontend](FRONTEND.md) - Arquitectura del cliente
-- [Autenticacion](AUTH.md) - JWT, roles y permisos
-- [Despliegue](DEPLOYMENT.md) - Guia de inicio rapido
+- [API](API.md) — Todos los endpoints REST + autenticacion JWT
+- [Arquitectura](ARCHITECTURE.md) — Backend (capas) + Frontend (vistas, store, router)
+- [Base de Datos](DATABASE.md) — Schema, scripts SQL, datos semilla
+- [Despliegue](DEPLOYMENT.md) — Instalacion, configuracion, troubleshooting
