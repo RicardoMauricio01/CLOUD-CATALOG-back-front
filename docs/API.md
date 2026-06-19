@@ -91,14 +91,15 @@ Registra un nuevo usuario.
   "usuario": "juan",
   "email": "juan@email.com",
   "password": "123456",
-  "rol": "cliente"
+  "rol": "cliente",
+  "color_favorito": "azul"
 }
 ```
 
-`rol` es opcional (default `cliente`).
+`rol` es opcional (default `cliente`). `color_favorito` es obligatorio y se usa para recuperacion de contrasena.
 
 **Validaciones:**
-- Todos los campos requeridos
+- Todos los campos requeridos (incluyendo `color_favorito`)
 - Password >= 6 caracteres
 - Usuario y email unicos
 
@@ -106,7 +107,7 @@ Registra un nuevo usuario.
 ```json
 {
   "message": "Usuario registrado exitosamente",
-  "user": { "id": 3, "nombre": "Juan Perez", "usuario": "juan", "email": "juan@email.com", "rol": "cliente", "created_at": "..." }
+  "user": { "id": 3, "nombre": "Juan Perez", "usuario": "juan", "email": "juan@email.com", "rol": "cliente", "color_favorito": "azul", "created_at": "..." }
 }
 ```
 
@@ -133,14 +134,21 @@ Inicia sesion.
 
 ### `POST /api/auth/forgot-password`
 
-Solicita token de restablecimiento.
+Solicita token de restablecimiento validando el color favorito.
 
 **Body:**
 ```json
-{ "email": "admin@tienda.cl" }
+{
+  "email": "admin@tienda.cl",
+  "color_favorito": "azul"
+}
 ```
 
-**Response:**
+**Validaciones:**
+- Email y color_favorito requeridos
+- Si el color no coincide con el registrado: error `Color favorito incorrecto`
+
+**Response 200:**
 ```json
 {
   "message": "Token de restablecimiento generado",
@@ -148,7 +156,7 @@ Solicita token de restablecimiento.
 }
 ```
 
-> El token se retorna en el body solo en desarrollo. En produccion se enviaria por email.
+> El token se guarda automaticamente en el frontend. El usuario nunca lo ve, solo ingresa su nueva contrasena.
 > Token: 32 bytes hex (64 chars), expira en 1 hora.
 
 ---
@@ -213,6 +221,8 @@ Usuario por ID.
 Actualiza el rol. Roles validos: `cliente`, `empleado`, `admin`.
 
 **Body:** `{ "rol": "empleado" }`
+
+> Un admin no puede cambiar su propio rol (error: `No puedes cambiar tu propio rol`).
 
 ### `DELETE /api/users/:id`
 

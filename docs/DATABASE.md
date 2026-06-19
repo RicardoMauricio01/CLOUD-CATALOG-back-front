@@ -28,6 +28,7 @@ CREATE TYPE rol_usuario AS ENUM ('cliente', 'empleado', 'admin');
 | `email` | VARCHAR(100) | UNIQUE, NOT NULL |
 | `password_hash` | VARCHAR(255) | NOT NULL |
 | `rol` | rol_usuario | DEFAULT 'cliente' |
+| `color_favorito` | VARCHAR(100) | nullable |
 | `reset_token` | VARCHAR(255) | nullable |
 | `reset_token_expiry` | TIMESTAMP | nullable |
 | `created_at` | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
@@ -79,13 +80,14 @@ categorias (1) ---< (N) productos
 | `03_seed_tienda.sql` | Inserta 4 categorias de supermercado |
 | `04_seed_productos.sql` | Inserta 11 productos con URLs de imagenes |
 | `05_seed_admin.sql` | Inserta usuario admin con hash bcrypt de `123456` |
+| `06_add_color_favorito.sql` | Agrega columna `color_favorito` a `usuarios` para recuperacion de contrasena |
 
 ### Reset rapido via backend
 
 ```bash
 cd backend
 pnpm run db:reset
-# Ejecuta node db-reset.js que suelta tablas y corre los 5 scripts
+# Ejecuta node db-reset.js que suelta tablas y corre los 6 scripts
 ```
 
 ## Datos semilla

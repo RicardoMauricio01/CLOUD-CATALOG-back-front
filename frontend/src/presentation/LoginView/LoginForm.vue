@@ -15,6 +15,11 @@
             <input type="email" :value="form.email" @input="update('email', $event.target.value)" required />
         </div>
 
+        <div v-if="mode === 'register' || mode === 'forgot'" class="form-group">
+            <label>Color favorito</label>
+            <input type="text" :value="form.color_favorito" @input="update('color_favorito', $event.target.value)" required placeholder="Ej: azul, rojo, verde..." />
+        </div>
+
         <div v-if="mode === 'login' || mode === 'register'" class="form-group">
             <label>Contrasena</label>
             <input type="password" :value="form.password" @input="update('password', $event.target.value)" required minlength="6" />
@@ -25,10 +30,7 @@
             <input type="password" :value="form.confirmPassword" @input="update('confirmPassword', $event.target.value)" required />
         </div>
 
-        <div v-if="mode === 'reset'" class="form-group">
-            <label>Token de restablecimiento</label>
-            <input type="text" :value="form.token" @input="update('token', $event.target.value)" required />
-        </div>
+        <input type="hidden" :value="form.token" />
 
         <div v-if="mode === 'reset'" class="form-group">
             <label>Nueva contrasena</label>

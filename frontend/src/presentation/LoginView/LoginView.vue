@@ -44,7 +44,8 @@ const error = ref('');
 const success = ref('');
 const form = ref({
     nombre: '', usuario: '', email: '', password: '',
-    confirmPassword: '', token: '', newPassword: ''
+    confirmPassword: '', token: '', newPassword: '',
+    color_favorito: ''
 });
 
 const subtitleText = computed(() => ({
@@ -79,13 +80,13 @@ async function handleSubmit() {
                 nombre: form.value.nombre,
                 usuario: form.value.usuario,
                 email: form.value.email,
-                password: form.value.password
+                password: form.value.password,
+                color_favorito: form.value.color_favorito
             });
             success.value = 'Usuario registrado exitosamente. Ahora puedes iniciar sesion.';
             mode.value = 'login';
         } else if (mode.value === 'forgot') {
-            const result = await authService.forgotPassword(form.value.email);
-            success.value = result.message;
+            const result = await authService.forgotPassword(form.value.email, form.value.color_favorito);
             if (result.resetToken) {
                 form.value.token = result.resetToken;
                 mode.value = 'reset';

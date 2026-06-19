@@ -7,9 +7,17 @@ node_modules/
 .env.development
 .env.production
 .env.*.local
+backend/.env
+backend/.env.dev
+backend/.env.prod
 
 # Build output
 frontend/dist/
+
+# Lockfiles (commit these for reproducible builds)
+# pnpm-lock.yaml
+# backend/pnpm-lock.yaml
+# frontend/pnpm-lock.yaml
 
 # Logs
 *.log
@@ -31,9 +39,6 @@ Thumbs.db
 
 # Coverage
 coverage/
-
-# AI agent files
-AGENTS.md
 
 # Misc
 *.pem

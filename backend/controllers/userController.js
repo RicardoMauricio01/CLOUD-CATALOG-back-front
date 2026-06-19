@@ -27,6 +27,10 @@ const UserController = {
                 return res.status(400).json({ error: 'El campo rol es requerido' });
             }
 
+            if (req.user.id === parseInt(req.params.id)) {
+                return res.status(400).json({ error: 'No puedes cambiar tu propio rol' });
+            }
+
             const user = await UserService.updateRole(req.params.id, rol);
             res.json({
                 message: 'Rol actualizado exitosamente',

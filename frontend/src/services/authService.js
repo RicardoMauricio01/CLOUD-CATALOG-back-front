@@ -7,8 +7,8 @@ const authService = {
     register(data) {
         return api.post('/auth/register', data).then(r => r.data);
     },
-    forgotPassword(email) {
-        return api.post('/auth/forgot-password', { email }).then(r => r.data);
+    forgotPassword(email, color_favorito) {
+        return api.post('/auth/forgot-password', { email, color_favorito }).then(r => r.data);
     },
     resetPassword(token, newPassword) {
         return api.post('/auth/reset-password', { token, newPassword }).then(r => r.data);

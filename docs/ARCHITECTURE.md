@@ -104,7 +104,7 @@ Logica de negocio pura, sin dependencia HTTP:
 
 | Service | Funcionalidad |
 |---------|---------------|
-| `authService` | register (verifica duplicados + bcrypt), login (bcrypt.compare + JWT), forgotPassword (crypto.randomBytes), resetPassword |
+| `authService` | register (verifica duplicados + bcrypt + color_favorito), login (bcrypt.compare + JWT), forgotPassword (valida color_favorito + crypto.randomBytes), resetPassword |
 | `userService` | CRUD usuarios, validacion de roles, transformacion con DTO |
 | `productService` | CRUD productos, validacion de datos con `validateProductData()` y `sanitizeProductData()` reutilizados en create/update |
 
@@ -158,6 +158,30 @@ LoginView
   |-- router.push('/')
 ```
 
+### Recuperacion de contrasena con color favorito
+
+```
+Registro:
+  |-- formulario incluye campo "Color favorito"
+  |-- se guarda en DB al crear usuario
+
+Olvide contrasena:
+  |-- usuario ingresa email + color favorito
+  |-- POST /api/auth/forgot-password { email, color_favorito }
+  |-- backend verifica que el color coincida (case-insensitive)
+  |     |-- si no coincide → error "Color favorito incorrecto"
+  |     |-- si coincide → genera token de restablecimiento (1h de validez)
+  |-- frontend guarda el token automaticamente (invisible para el usuario)
+  |-- usuario solo ingresa su nueva contrasena + confirmacion
+  |-- POST /api/auth/reset-password { token (auto), newPassword }
+```
+
+### Proteccion de roles en AdminUsersView
+
+- Un admin **no puede cambiar su propio rol** (select deshabilitado para si mismo)
+- Al asignar rol `admin` a otro usuario, se muestra un `confirm()` de confirmacion
+- El backend tambien valida que un admin no pueda cambiarse su propio rol via API
+
 ### Proteccion de rutas
 
 El guard `router.beforeEach` en `router/index.js`:
@@ -184,7 +208,7 @@ router.beforeEach((to, from, next) => {
 `services/http.js` crea una instancia axios compartida con interceptors:
 
 - **Request**: agrega `Authorization: Bearer <token>` de localStorage
-- **Response**: en 401/403 limpia sesion y redirige a `/login`
+- **Response**: en 401/403 limpia sesion y redirige a `/login`, pero **excluye las rutas `/auth/`** para no interrumpir el flujo de login y recuperacion de contrasena
 
 Los 3 services (`authService`, `userService`, `productService`) importan desde `http.js`.
 
@@ -198,7 +222,7 @@ Cada feature en su propia carpeta bajo `presentation/`:
 | `ClientCatalogView/` | ClientCatalogView.vue (hero + grid), CatalogItem.vue (tarjeta) | catalog.css |
 | `AdminInventoryView/` | AdminInventoryView.vue (tabla + Socket.io), ProductForm.vue (modal) | inventory.css |
 | `AdminUsersView/` | AdminUsersView.vue (tabla + stats), UserModal.vue (crear usuario) | admin-users.css |
-| `widgets/` | NavBar.vue | (usa estilos globales) |
+| `widgets/` | NavBar.vue | Barra de navegacion con Home, Catalogo (scroll a productos), y enlaces por rol |
 
 ### Estilos
 

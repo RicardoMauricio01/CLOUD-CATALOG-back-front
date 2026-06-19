@@ -2,7 +2,8 @@
     <nav class="navbar">
         <router-link to="/" class="navbar-brand">Cloud Catalog</router-link>
         <ul class="navbar-nav">
-            <li><router-link to="/">Catalogo</router-link></li>
+            <li><router-link to="/">Home</router-link></li>
+            <li><a href="#" @click.prevent="goToCatalog">Catalogo</a></li>
             <li v-if="store.canManageProducts">
                 <router-link to="/admin/products">Productos</router-link>
             </li>
@@ -35,5 +36,17 @@ const router = useRouter();
 function handleLogout() {
     store.logout();
     router.push('/login');
+}
+
+function goToCatalog() {
+    if (router.currentRoute.value.path === '/') {
+        document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        router.push('/').then(() => {
+            setTimeout(() => {
+                document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        });
+    }
 }
 </script>

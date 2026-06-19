@@ -7,7 +7,7 @@ const { toPublicUser } = require('../dtos/userDto');
 const SALT_ROUNDS = 10;
 
 const AuthService = {
-    async register({ nombre, usuario, email, password, rol }) {
+    async register({ nombre, usuario, email, password, rol, color_favorito }) {
         const existingUser = await UserDao.findByUsername(usuario);
         if (existingUser) {
             throw new Error('El nombre de usuario ya esta en uso');
@@ -18,11 +18,16 @@ const AuthService = {
             throw new Error('El email ya esta registrado');
         }
 
+        if (!color_favorito) {
+            throw new Error('El color favorito es requerido');
+        }
+
         const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
         const newUser = await UserDao.create({
             nombre, usuario, email, password_hash,
-            rol: rol || 'cliente'
+            rol: rol || 'cliente',
+            color_favorito
         });
 
         return toPublicUser(newUser);
@@ -51,10 +56,14 @@ const AuthService = {
         };
     },
 
-    async forgotPassword(email) {
+    async forgotPassword(email, color_favorito) {
         const user = await UserDao.findByEmail(email);
         if (!user) {
             return { message: 'Si el email existe, se ha enviado un token de restablecimiento' };
+        }
+
+        if (!user.color_favorito || user.color_favorito.toLowerCase() !== color_favorito.toLowerCase().trim()) {
+            throw new Error('Color favorito incorrecto');
         }
 
         const resetToken = crypto.randomBytes(32).toString('hex');

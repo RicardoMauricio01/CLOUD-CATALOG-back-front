@@ -48,7 +48,7 @@
                         <td>{{ user.usuario }}</td>
                         <td>{{ user.email }}</td>
                         <td>
-                            <select v-model="user.rol" @change="handleRoleChange(user.id, user.rol)">
+                            <select v-model="user.rol" @change="handleRoleChange(user.id, user.rol)" :disabled="user.id === store.user.id">
                                 <option value="cliente">Cliente</option>
                                 <option value="empleado">Empleado</option>
                                 <option value="admin">Admin</option>
@@ -70,9 +70,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import userService from '../../services/userService.js';
+import { useAppStore } from '../../state/appState.js';
 import UserModal from './UserModal.vue';
 import './admin-users.css';
 
+const store = useAppStore();
 const users = ref([]);
 const stats = ref([]);
 const error = ref('');
@@ -100,10 +102,17 @@ async function loadUsers() {
 }
 
 async function handleRoleChange(userId, newRole) {
+    if (newRole === 'admin') {
+        if (!window.confirm('¿Estas seguro de asignar el rol de administrador a este usuario?')) {
+            loadUsers();
+            return;
+        }
+    }
     try {
         await userService.updateRole(userId, newRole);
     } catch (err) {
         error.value = err.response?.data?.error || err.message;
+        loadUsers();
     }
 }
 

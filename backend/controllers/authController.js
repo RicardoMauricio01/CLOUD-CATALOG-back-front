@@ -3,11 +3,11 @@ const AuthService = require('../services/authService');
 const AuthController = {
     async register(req, res) {
         try {
-            const { nombre, usuario, email, password, rol } = req.body;
+            const { nombre, usuario, email, password, rol, color_favorito } = req.body;
 
-            if (!nombre || !usuario || !email || !password) {
+            if (!nombre || !usuario || !email || !password || !color_favorito) {
                 return res.status(400).json({
-                    error: 'Todos los campos son requeridos: nombre, usuario, email, password'
+                    error: 'Todos los campos son requeridos: nombre, usuario, email, password, color_favorito'
                 });
             }
 
@@ -17,7 +17,7 @@ const AuthController = {
                 });
             }
 
-            const newUser = await AuthService.register({ nombre, usuario, email, password, rol });
+            const newUser = await AuthService.register({ nombre, usuario, email, password, rol, color_favorito });
             res.status(201).json({
                 message: 'Usuario registrado exitosamente',
                 user: newUser
@@ -46,16 +46,16 @@ const AuthController = {
 
     async forgotPassword(req, res) {
         try {
-            const { email } = req.body;
+            const { email, color_favorito } = req.body;
 
-            if (!email) {
-                return res.status(400).json({ error: 'El email es requerido' });
+            if (!email || !color_favorito) {
+                return res.status(400).json({ error: 'Email y color favorito son requeridos' });
             }
 
-            const result = await AuthService.forgotPassword(email);
+            const result = await AuthService.forgotPassword(email, color_favorito);
             res.json(result);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(400).json({ error: error.message });
         }
     },
 

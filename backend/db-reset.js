@@ -28,7 +28,8 @@ async function resetDatabase() {
             '02_init_categorias_prod.sql',
             '03_seed_tienda.sql',
             '04_seed_productos.sql',
-            '05_seed_admin.sql'
+            '05_seed_admin.sql',
+            '06_add_color_favorito.sql'
         ];
 
         for (const script of scripts) {

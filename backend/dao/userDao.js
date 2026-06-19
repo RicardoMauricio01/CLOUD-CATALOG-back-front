@@ -26,12 +26,12 @@ const UserDao = {
         return result.rows;
     },
 
-    async create({ nombre, usuario, email, password_hash, rol = 'cliente' }) {
+    async create({ nombre, usuario, email, password_hash, rol = 'cliente', color_favorito = null }) {
         const result = await pool.query(
-            `INSERT INTO usuarios (nombre, usuario, email, password_hash, rol)
-             VALUES ($1, $2, $3, $4, $5)
-             RETURNING id, nombre, usuario, email, rol, created_at`,
-            [nombre, usuario, email, password_hash, rol]
+            `INSERT INTO usuarios (nombre, usuario, email, password_hash, rol, color_favorito)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             RETURNING id, nombre, usuario, email, rol, color_favorito, created_at`,
+            [nombre, usuario, email, password_hash, rol, color_favorito]
         );
         return result.rows[0];
     },
